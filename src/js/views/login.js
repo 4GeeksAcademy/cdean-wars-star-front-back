@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
-import "../../styles/signup.css";
+import "../../styles/login.css";
 
-const SignUp = () => {
+const Login = () => {
 	const { store, actions } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -19,20 +19,18 @@ const SignUp = () => {
 
     async function handleSubmit(event) {
         event.preventDefault()
-        //console.log(actions.response.data)
-        let newUser = await actions.signup(email, password);
-        if (newUser === true) {
-            //alert(actions.response.data.msg)
-            navigate("/login")
+        let logged = await actions.login(email, password);
+        if (logged === true) {
+            navigate("/")
         }
     }
 
 	return (
 		<div className="container d-flex align-items-center justify-content-center">
-            <div className="d-flex justify-content-center" id="form_cont">
+            <div className="d-flex justify-content-center" id="form_login">
             
             <form onSubmit={handleSubmit}>
-            <h1 className="mb-5">Sign Up</h1>
+            <h1 className="mb-5">Login</h1>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email</label>
                     <input onChange={handleInputEmail} type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example@example.com"/>
@@ -42,11 +40,12 @@ const SignUp = () => {
                     <label for="exampleInputPassword1" class="form-label">Password</label>
                     <input onChange={handleInputPassword}type="password" class="form-control" id="exampleInputPassword1"/>
                 </div>
-                <button type="submit" class="btn btn-primary">Sign Up</button>
-                <div id="emailHelp" class="form-text">Already have an account? <Link to={"/login"}>Login.</Link></div>
-                </form>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div id="emailHelp" class="form-text">Don't have an account yet? <Link to={"/signup"}>Sign Up.</Link></div>
+            </form>
             </div>
         </div>
 	);
 };
-export default SignUp;
+
+export default Login;

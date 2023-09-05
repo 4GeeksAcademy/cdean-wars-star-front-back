@@ -1,3 +1,6 @@
+import axios from "axios";
+import { useNavigate } from "react-router";
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -21,7 +24,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			characters: []
 			,
 
-			vehiculos: []
+			vehiculos: [],
+			auth: false
 
 		},
 		actions: {
@@ -29,6 +33,92 @@ const getState = ({ getStore, getActions, setStore }) => {
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
+			signup: async (email, password) => {
+				try {
+					let data = await axios.post('https://special-journey-wg94xqrvppr2vjw4-3000.app.github.dev/signup',{
+						"email":email,
+						"password":password
+					})
+					alert(data.data.msg)
+					return true;
+				} catch (error) {
+					console.log("errorrrrr:" + error)
+					if (error.response.status === 404) {
+						alert(error.response.data.msg)
+					}
+					return false;
+				}
+
+			},
+			login: async (email, password) => {
+				try {
+					let data = await axios.post('https://special-journey-wg94xqrvppr2vjw4-3000.app.github.dev/login',{
+						"email":email,
+						"password":password
+					})
+					console.log(data);
+					localStorage.setItem("token", data.data.access_token);
+					setStore({auth:true})
+					return true;
+				} catch (error) {
+					console.log("errorrrrr:" + error)
+					if (error.response.status === 404) {
+						alert(error.response.data.msg)
+					}
+					return false;
+				}
+
+
+			},
+
+			validToken: async () => {
+				let token = localStorage.getItem("token")
+				try {
+					let data = await axios.get('https://special-journey-wg94xqrvppr2vjw4-3000.app.github.dev/valid-token',{
+						"headers":{'Authorization': 'Bearer '+token}
+					})
+					console.log(data);
+					setStore({auth:true})
+					return true;
+				} catch (error) {
+					console.log("errorrrrr:" + error)
+					if (error.response.status === 401) {
+						setStore({auth:false})
+						alert(error.response.data.msg)
+					}
+					return false;
+				}
+
+
+			},
+			logout: (navigate) => {
+				console.log("Funciona")
+				localStorage.removeItem("token")
+				setStore({auth:false})
+				navigate('/login')
+			},
+
+			obtenerFavUser: async () => {
+				let token = localStorage.getItem("token")
+				try {
+					let data = await axios.get('https://special-journey-wg94xqrvppr2vjw4-3000.app.github.dev/user/fav',{
+						"headers":{'Authorization': 'Bearer '+token}
+					});
+					console.log(data.data.results)
+					setStore({favoritos:data.data.results})
+					return true;
+				} catch (error) {
+					console.log("errorrrrr:" + error)
+					if (error.response.status === 401) {
+						setStore({auth:false})
+						alert(error.response.data.msg)
+					}
+					return false;
+				}
+
+
+			},
+			
 			obtenerVehiculosClaudia: async () => {
 				/**
 					fetch().then().then(data => setStore({ "foo": data.bar }))
@@ -48,6 +138,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 			},
+
 			obtenerPersonajes: async () => {
 				/**
 					fetch().then().then(data => setStore({ "foo": data.bar }))
